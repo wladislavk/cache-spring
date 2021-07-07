@@ -228,4 +228,23 @@ public class CacheControllerTest {
 
         result.andExpect(status().isNotFound());
     }
+
+    @Test
+    public void testPersistence() throws Exception {
+        ResultActions firstResult = mvc.perform(MockMvcRequestBuilders.post("/object")
+                .param("ttl", "500")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\": 11}"));
+        firstResult.andExpect(status().isOk());
+        ResultActions secondResult = mvc.perform(MockMvcRequestBuilders.post("/object")
+                .param("ttl", "500")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\": 12}"));
+        secondResult.andExpect(status().isOk());
+
+        ResultActions result = mvc.perform(MockMvcRequestBuilders.get("/object/1").contentType(MediaType.APPLICATION_JSON));
+        result
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", Matchers.is(12)));
+    }
 }
